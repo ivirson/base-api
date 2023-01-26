@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    /* Language and Environment */
+    "target": "es2016",  
+    /* Modules */
+    "module": "commonjs",                                /* Specify what module code is generated. */
+    "outDir": "./dist",
+    "rootDir": "./src/app",  
+    "esModuleInterop": true,  
+    "forceConsistentCasingInFileNames": true,            /* Ensure that casing is correct in imports. */
+
+    /* Type Checking */
+    "strict": true,                     /* Skip type checking .d.ts files that are included with TypeScript. */
+    "skipLibCheck": true,                                 /* Skip type checking all .d.ts files. */
+    "resolveJsonModule": true
+  }
+}
