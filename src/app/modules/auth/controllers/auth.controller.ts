@@ -3,11 +3,11 @@ import { Request, Response } from "express";
 import * as jwt from "jsonwebtoken";
 import { Error } from "sequelize";
 import { AppError } from "../../../shared/models/error.model";
-import UsersRepository from "../../users/repositories/users.repository";
-import AuthRepository from "../repositories/auth.repository";
+import UsersService from "../../users/services/users.service";
+import AuthService from "../services/auth.service";
 
-const authRepository = new AuthRepository();
-const usersRepository = new UsersRepository();
+const authService = new AuthService();
+const usersService = new UsersService();
 
 export default class AuthController {
   /**
@@ -39,7 +39,7 @@ export default class AuthController {
     const { email, password } = request.body;
 
     try {
-      const user = await authRepository.findByEmail(email);
+      const user = await usersService.findByEmail(email);
 
       if (!user) {
         return response.status(404).json(new AppError("User not found."));
@@ -105,7 +105,7 @@ export default class AuthController {
     const user = request.body;
 
     try {
-      const createdUser = await usersRepository.save(user);
+      const createdUser = await usersService.save(user);
       return response.status(201).json(createdUser);
     } catch (error: Error | any) {
       return response
@@ -117,5 +117,23 @@ export default class AuthController {
           )
         );
     }
+  }
+
+  public async forgotPassword(
+    request: Request,
+    response: Response
+  ): Promise<Response> {
+    const { email } = request.body;
+    const user = await usersService.findByEmail(email);
+
+    if (!user) {
+      return response.status(404).json(new AppError("User not found"));
+    }
+
+    const userToken = await authService.createUserToken(user.dataValues.id);
+    const link = `http://localhost:5000/reset-password?token=${userToken?.dataValues.token}`;
+    console.log(link);
+
+    return response.status(200).json();
   }
 }

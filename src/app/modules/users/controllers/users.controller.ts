@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
 import { Error } from "sequelize";
 import { AppError } from "../../../shared/models/error.model";
-import UsersRepository from "../repositories/users.repository";
+import UsersService from "../services/users.service";
 
-const usersRepository = new UsersRepository();
+const usersService = new UsersService();
 
 export default class UsersController {
   /**
@@ -28,7 +28,7 @@ export default class UsersController {
     response: Response
   ): Promise<Response> {
     try {
-      const users = await usersRepository.findAll();
+      const users = await usersService.findAll();
       return response.status(200).json(users);
     } catch (error: Error | any) {
       return response
@@ -72,7 +72,7 @@ export default class UsersController {
   ): Promise<Response> {
     const { id } = request.params;
     try {
-      const user = await usersRepository.findById(id);
+      const user = await usersService.findById(id);
 
       if (!user) {
         return response.status(404).json(new AppError("User not found."));
@@ -116,7 +116,7 @@ export default class UsersController {
     const user = request.body;
 
     try {
-      const createdUser = await usersRepository.save(user);
+      const createdUser = await usersService.save(user);
       return response.status(201).json(createdUser);
     } catch (error: Error | any) {
       return response
@@ -163,7 +163,7 @@ export default class UsersController {
     const user = request.body;
 
     try {
-      const updatedUser = await usersRepository.update(id, user);
+      const updatedUser = await usersService.update(id, user);
       return response.status(200).json(updatedUser);
     } catch (error: Error | any) {
       return response
@@ -199,7 +199,7 @@ export default class UsersController {
     const { id } = request.params;
 
     try {
-      await usersRepository.delete(id);
+      await usersService.delete(id);
       return response.status(200).json();
     } catch (error: Error | any) {
       return response
