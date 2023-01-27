@@ -56,5 +56,24 @@
         "type": "string"
       }
     }
+  },
+  "ForgotPassword": {
+    "type": "object",
+    "properties": {
+      "email": {
+        "type": "string"
+      }
+    }
+  },
+  "ResetPassword": {
+    "type": "object",
+    "properties": {
+      "password": {
+        "type": "string"
+      },
+      "token": {
+        "type": "string"
+      }
+    }
   }
 }

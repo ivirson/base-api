@@ -27,6 +27,11 @@ export default class UsersService {
   }
 
   public async update(id: string, user: any): Promise<User | null> {
+    if (user.password) {
+      const salt = await bcrypt.genSalt(10);
+      const encryptedPassword = await bcrypt.hash(user.password, salt);
+      user.password = encryptedPassword;
+    }
     return await usersRepository.update(id, user);
   }
 
