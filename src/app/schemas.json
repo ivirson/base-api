@@ -10,6 +10,9 @@
       },
       "email": {
         "type": "string"
+      },
+      "avatar": {
+        "type": "string"
       }
     }
   },
@@ -80,7 +83,7 @@
     "type": "object",
     "properties": {
       "avatar": {
-        "type": "string"
+        "type": "file"
       }
     }
   }

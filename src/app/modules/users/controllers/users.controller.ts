@@ -192,6 +192,8 @@ export default class UsersController {
    *     tags:
    *       - Users
    *     summary: Update user avatar
+   *     consumes:
+   *       - multpart/form-data
    *     parameters:
    *       - in: path
    *         name: id
@@ -199,12 +201,12 @@ export default class UsersController {
    *         description: Numeric ID of the user to update.
    *         schema:
    *           type: integer
-   *     requestBody:
-   *       required: true
-   *       content:
-   *         application/json:
-   *           schema:
-   *             $ref: '#/components/schemas/UserAvatar'
+   *       - in: formData
+   *         name: avatar
+   *         required: false
+   *         description: file to update user avatar.
+   *         schema:
+   *           type: file
    *     responses:
    *       200:
    *         description: Updated
