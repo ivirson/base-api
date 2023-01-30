@@ -165,9 +165,9 @@ export default class UsersController {
     const user = request.body;
 
     try {
-      const user = await usersService.findById(id);
+      const userExist = await usersService.findById(id);
 
-      if (!user) {
+      if (!userExist) {
         return response.status(404).json(new AppError("User not found."));
       }
 
