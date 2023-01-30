@@ -1,4 +1,3 @@
-import bcrypt from "bcrypt";
 import User from "../models/user.model";
 
 export default class UsersRepository {

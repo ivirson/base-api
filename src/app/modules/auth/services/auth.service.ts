@@ -1,9 +1,7 @@
-import UserToken from "../../users/models/user-token.model";
-import AuthRepository from "../repositories/auth.repository";
 import nodemailer, { SentMessageInfo } from "nodemailer";
-import MailMessage from "nodemailer/lib/mailer/mail-message";
+import UserToken from "../../users/models/user-token.model";
 import User from "../../users/models/user.model";
-import { resolve } from "path";
+import AuthRepository from "../repositories/auth.repository";
 
 const authRepository = new AuthRepository();
 
