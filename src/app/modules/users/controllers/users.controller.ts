@@ -36,7 +36,7 @@ export default class UsersController {
         .json(
           new AppError(
             "There was an error querying the data.",
-            error.errors.map((e: Error) => e.message) || error
+            error.errors ? error.errors.map((e: Error) => e.message) : error
           )
         );
     }
@@ -85,7 +85,7 @@ export default class UsersController {
         .json(
           new AppError(
             "There was an error querying the data.",
-            error.errors.map((e: Error) => e.message) || error
+            error.errors ? error.errors.map((e: Error) => e.message) : error
           )
         );
     }
@@ -124,7 +124,7 @@ export default class UsersController {
         .json(
           new AppError(
             "There was an error saving the data.",
-            error.errors.map((e: Error) => e.message) || error
+            error.errors ? error.errors.map((e: Error) => e.message) : error
           )
         );
     }
@@ -157,12 +157,20 @@ export default class UsersController {
    *           application/json:
    *             schema:
    *               $ref: '#/components/schemas/User'
+   *       404:
+   *         description: User not found
    */
   public async update(request: Request, response: Response): Promise<Response> {
     const { id } = request.params;
     const user = request.body;
 
     try {
+      const user = await usersService.findById(id);
+
+      if (!user) {
+        return response.status(404).json(new AppError("User not found."));
+      }
+
       const updatedUser = await usersService.update(id, user);
       return response.status(200).json(updatedUser);
     } catch (error: Error | any) {
@@ -171,7 +179,69 @@ export default class UsersController {
         .json(
           new AppError(
             "There was an error updating the data.",
-            error.errors.map((e: Error) => e.message) || error
+            error.errors ? error.errors.map((e: Error) => e.message) : error
+          )
+        );
+    }
+  }
+
+  /**
+   * @swagger
+   * /users/{:id}/avatar:
+   *   put:
+   *     tags:
+   *       - Users
+   *     summary: Update user avatar
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         description: Numeric ID of the user to update.
+   *         schema:
+   *           type: integer
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/UserAvatar'
+   *     responses:
+   *       200:
+   *         description: Updated
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/User'
+   *       404:
+   *         description: User not found
+   */
+  public async updateAvatar(
+    request: Request,
+    response: Response
+  ): Promise<Response> {
+    const { id } = request.params;
+    console.log(request.body);
+
+    const avatar = request.file?.filename as string;
+
+    console.log(avatar);
+
+    try {
+      const user = await usersService.findById(id);
+
+      if (!user) {
+        return response.status(404).json(new AppError("User not found."));
+      }
+
+      const updatedUser = await usersService.updateAvatar(id, avatar);
+      return response.status(200).json(updatedUser);
+    } catch (error: Error | any) {
+      return response
+        .status(500)
+        .json(
+          new AppError(
+            "There was an error updating the data.",
+            error.errors ? error.errors.map((e: Error) => e.message) : error
           )
         );
     }
@@ -207,7 +277,7 @@ export default class UsersController {
         .json(
           new AppError(
             "There was an error removing the data.",
-            error.errors.map((e: Error) => e.message) || error
+            error.errors ? error.errors.map((e: Error) => e.message) : error
           )
         );
     }

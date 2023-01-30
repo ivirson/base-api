@@ -1,5 +1,5 @@
 import Sequelize, { Model } from "sequelize";
-import database from "./../../../database/db";
+import database from "../../../database/db";
 
 export default class User extends Model {}
 
@@ -23,6 +23,9 @@ User.init(
     password: {
       type: Sequelize.STRING,
       allowNull: false,
+    },
+    avatar: {
+      type: Sequelize.STRING,
     },
   },
   {

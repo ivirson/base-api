@@ -114,7 +114,7 @@ export default class AuthController {
         .json(
           new AppError(
             "There was an error saving the data.",
-            error.errors.map((e: Error) => e.message) || error
+            error?.errors.map((e: Error) => e.message) || error
           )
         );
     }
@@ -217,7 +217,7 @@ export default class AuthController {
         return response.status(401).json(new AppError("Token expired"));
       }
 
-      usersService.update(user.dataValues.id, { ...user, password });
+      usersService.update(user.dataValues.id, { ...user.dataValues, password });
 
       return response.status(200).json();
     } catch (error: Error | any) {

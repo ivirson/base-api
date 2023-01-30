@@ -75,5 +75,13 @@
         "type": "string"
       }
     }
+  },
+  "UserAvatar": {
+    "type": "object",
+    "properties": {
+      "avatar": {
+        "type": "string"
+      }
+    }
   }
 }
