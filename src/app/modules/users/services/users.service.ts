@@ -31,13 +31,10 @@ export default class UsersService {
   }
 
   public async update(id: string, user: User): Promise<User | null> {
-    if (user.dataValues.password) {
+    if (user.password) {
       const salt = await bcrypt.genSalt(10);
-      const encryptedPassword = await bcrypt.hash(
-        user.dataValues.password,
-        salt
-      );
-      user.dataValues.password = encryptedPassword;
+      const encryptedPassword = await bcrypt.hash(user.password, salt);
+      user.password = encryptedPassword;
     }
     return await usersRepository.update(id, user);
   }
@@ -45,11 +42,8 @@ export default class UsersService {
   public async updateAvatar(id: string, avatar: string): Promise<User | null> {
     const user = await this.findById(id);
 
-    if (user?.dataValues.avatar) {
-      const userAvatarFilePath = path.join(
-        uploadConfig.directory,
-        user.dataValues.avatar
-      );
+    if (user?.avatar) {
+      const userAvatarFilePath = path.join(uploadConfig.directory, user.avatar);
 
       const userAvatarFileExists = await fs.promises.stat(userAvatarFilePath);
 
@@ -59,7 +53,7 @@ export default class UsersService {
     }
 
     return await usersRepository.update(id, {
-      ...user?.dataValues,
+      ...user,
       avatar,
     });
   }

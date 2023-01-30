@@ -26,11 +26,11 @@ export default class AuthService {
 
     const mail = {
       from: SMTP_SENDER,
-      to: user.dataValues.email,
+      to: user.email,
       subject: "[App Repertoire] Recuperação de Senha",
       html: `
         <div class='message-content'>
-          <p>Olá ${user.dataValues.name}!</p>
+          <p>Olá ${user.name}!</p>
           <br />
           <p>Recebemos uma solicitação de redefinição de senha para a sua conta de
             usuário.</p>

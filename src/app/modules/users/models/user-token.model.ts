@@ -1,23 +1,38 @@
-import Sequelize, { Model } from "sequelize";
+import {
+  CreationOptional,
+  DataTypes,
+  InferAttributes,
+  InferCreationAttributes,
+  Model,
+} from "sequelize";
 import database from "../../../database/db";
 
-export default class UserToken extends Model {}
+export default class UserToken extends Model<
+  InferAttributes<UserToken>,
+  InferCreationAttributes<UserToken>
+> {
+  declare id: CreationOptional<string>;
+  declare token: string;
+  declare userId: string;
+  declare createdAt?: CreationOptional<Date>;
+  declare updatedAt?: CreationOptional<Date>;
+}
 
 UserToken.init(
   {
     id: {
-      type: Sequelize.UUID,
-      defaultValue: Sequelize.UUIDV4,
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
       allowNull: false,
       primaryKey: true,
     },
     token: {
-      type: Sequelize.UUID,
-      defaultValue: Sequelize.UUIDV4,
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
       allowNull: false,
     },
     userId: {
-      type: Sequelize.UUID,
+      type: DataTypes.UUID,
       allowNull: false,
     },
   },

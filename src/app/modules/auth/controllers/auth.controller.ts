@@ -46,13 +46,13 @@ export default class AuthController {
         return response.status(404).json(new AppError("User not found."));
       }
 
-      if (!(await bcrypt.compare(password, user.dataValues.password))) {
+      if (!(await bcrypt.compare(password, user.password!))) {
         return response.status(401).json(new AppError("Incorrect password."));
       }
 
       const token = jwt.sign(
         {
-          userId: user.dataValues.id,
+          userId: user.id,
           email,
         },
         process.env.TOKEN_KEY!
@@ -60,9 +60,9 @@ export default class AuthController {
 
       return response.status(200).json({
         user: {
-          id: user.dataValues.id,
-          name: user.dataValues.name,
-          email: user.dataValues.email,
+          id: user.id,
+          name: user.name,
+          email: user.email,
         },
         token,
       });
@@ -152,8 +152,8 @@ export default class AuthController {
         return response.status(404).json(new AppError("User not found"));
       }
 
-      const userToken = await authService.createUserToken(user.dataValues.id);
-      const link = `${process.env.API_ROOT}/reset-password?token=${userToken?.dataValues.token}`;
+      const userToken = await authService.createUserToken(user.id);
+      const link = `${process.env.API_ROOT}/reset-password?token=${userToken?.token}`;
 
       await authService.sendMail(user, link);
 
@@ -204,20 +204,21 @@ export default class AuthController {
         return response.status(404).json(new AppError("User Token not found"));
       }
 
-      const user = await usersService.findById(userToken.dataValues.userId);
+      const user = await usersService.findById(userToken.userId);
 
       if (!user) {
         return response.status(404).json(new AppError("User not found"));
       }
 
-      const tokenCreatedAt = userToken.dataValues.created_at;
+      const tokenCreatedAt = userToken.createdAt as Date;
       const compareDate = addHours(tokenCreatedAt, 2);
 
       if (isAfter(Date.now(), compareDate)) {
         return response.status(401).json(new AppError("Token expired"));
       }
 
-      usersService.update(user.dataValues.id, { ...user.dataValues, password });
+      user.password = password;
+      usersService.update(user.id, user);
 
       return response.status(200).json();
     } catch (error: Error | any) {
