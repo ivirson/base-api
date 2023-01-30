@@ -72,7 +72,7 @@ export default class AuthController {
         .json(
           new AppError(
             "There was an error querying the data.",
-            error.errors.map((e: Error) => e.message) || error
+            error.errors ? error.errors.map((e: Error) => e.message) : error
           )
         );
     }
@@ -164,7 +164,7 @@ export default class AuthController {
         .json(
           new AppError(
             "There was an error querying the data.",
-            error.errors.map((e: Error) => e.message) || error
+            error.errors ? error.errors.map((e: Error) => e.message) : error
           )
         );
     }
@@ -226,7 +226,7 @@ export default class AuthController {
         .json(
           new AppError(
             "There was an error querying the data.",
-            error.errors.map((e: Error) => e.message) || error
+            error.errors ? error.errors.map((e: Error) => e.message) : error
           )
         );
     }
