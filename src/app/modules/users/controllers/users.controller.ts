@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import { Error } from "sequelize";
 import { AppError } from "../../../shared/models/error.model";
 import UsersService from "../services/users.service";
 
@@ -30,15 +29,8 @@ export default class UsersController {
     try {
       const users = await usersService.findAll();
       return response.status(200).json(users);
-    } catch (error: Error | any) {
-      return response
-        .status(500)
-        .json(
-          new AppError(
-            "There was an error querying the data.",
-            error.errors ? error.errors.map((e: Error) => e.message) : error
-          )
-        );
+    } catch (error: AppError | any) {
+      return response.status(error.statusCode | 500).json(error);
     }
   }
 
@@ -70,24 +62,12 @@ export default class UsersController {
     request: Request,
     response: Response
   ): Promise<Response> {
-    const { id } = request.params;
     try {
+      const { id } = request.params;
       const user = await usersService.findById(id);
-
-      if (!user) {
-        return response.status(404).json(new AppError("User not found."));
-      }
-
       return response.status(200).json(user);
-    } catch (error: Error | any) {
-      return response
-        .status(500)
-        .json(
-          new AppError(
-            "There was an error querying the data.",
-            error.errors ? error.errors.map((e: Error) => e.message) : error
-          )
-        );
+    } catch (error: AppError | any) {
+      return response.status(error.statusCode | 500).json(error);
     }
   }
 
@@ -113,20 +93,12 @@ export default class UsersController {
    *               $ref: '#/components/schemas/User'
    */
   public async save(request: Request, response: Response): Promise<Response> {
-    const user = request.body;
-
     try {
+      const user = request.body;
       const createdUser = await usersService.save(user);
       return response.status(201).json(createdUser);
-    } catch (error: Error | any) {
-      return response
-        .status(500)
-        .json(
-          new AppError(
-            "There was an error saving the data.",
-            error.errors ? error.errors.map((e: Error) => e.message) : error
-          )
-        );
+    } catch (error: AppError | any) {
+      return response.status(error.statusCode | 500).json(error);
     }
   }
 
@@ -161,27 +133,13 @@ export default class UsersController {
    *         description: User not found
    */
   public async update(request: Request, response: Response): Promise<Response> {
-    const { id } = request.params;
-    const user = request.body;
-
     try {
-      const userExist = await usersService.findById(id);
-
-      if (!userExist) {
-        return response.status(404).json(new AppError("User not found."));
-      }
-
+      const { id } = request.params;
+      const user = request.body;
       const updatedUser = await usersService.update(id, user);
       return response.status(200).json(updatedUser);
-    } catch (error: Error | any) {
-      return response
-        .status(500)
-        .json(
-          new AppError(
-            "There was an error updating the data.",
-            error.errors ? error.errors.map((e: Error) => e.message) : error
-          )
-        );
+    } catch (error: AppError | any) {
+      return response.status(error.statusCode | 500).json(error);
     }
   }
 
@@ -221,31 +179,13 @@ export default class UsersController {
     request: Request,
     response: Response
   ): Promise<Response> {
-    const { id } = request.params;
-    console.log(request.body);
-
-    const avatar = request.file?.filename as string;
-
-    console.log(avatar);
-
     try {
-      const user = await usersService.findById(id);
-
-      if (!user) {
-        return response.status(404).json(new AppError("User not found."));
-      }
-
+      const { id } = request.params;
+      const avatar = request.file?.filename as string;
       const updatedUser = await usersService.updateAvatar(id, avatar);
       return response.status(200).json(updatedUser);
-    } catch (error: Error | any) {
-      return response
-        .status(500)
-        .json(
-          new AppError(
-            "There was an error updating the data.",
-            error.errors ? error.errors.map((e: Error) => e.message) : error
-          )
-        );
+    } catch (error: AppError | any) {
+      return response.status(error.statusCode | 500).json(error);
     }
   }
 
@@ -268,20 +208,12 @@ export default class UsersController {
    *         description: Deleted
    */
   public async delete(request: Request, response: Response): Promise<Response> {
-    const { id } = request.params;
-
     try {
+      const { id } = request.params;
       await usersService.delete(id);
       return response.status(200).json();
-    } catch (error: Error | any) {
-      return response
-        .status(500)
-        .json(
-          new AppError(
-            "There was an error removing the data.",
-            error.errors ? error.errors.map((e: Error) => e.message) : error
-          )
-        );
+    } catch (error: AppError | any) {
+      return response.status(error.statusCode | 500).json(error);
     }
   }
 }

@@ -1,8 +1,4 @@
-import bcrypt from "bcrypt";
-import { addHours, isAfter } from "date-fns";
 import { Request, Response } from "express";
-import * as jwt from "jsonwebtoken";
-import { Error } from "sequelize";
 import { AppError } from "../../../shared/models/error.model";
 import UsersService from "../../users/services/users.service";
 import AuthService from "../services/auth.service";
@@ -37,44 +33,12 @@ export default class AuthController {
    *         description: Incorrect password
    */
   public async login(request: Request, response: Response): Promise<Response> {
-    const { email, password } = request.body;
-
     try {
-      const user = await usersService.findByEmail(email);
-
-      if (!user) {
-        return response.status(404).json(new AppError("User not found."));
-      }
-
-      if (!(await bcrypt.compare(password, user.password!))) {
-        return response.status(401).json(new AppError("Incorrect password."));
-      }
-
-      const token = jwt.sign(
-        {
-          userId: user.id,
-          email,
-        },
-        process.env.TOKEN_KEY!
-      );
-
-      return response.status(200).json({
-        user: {
-          id: user.id,
-          name: user.name,
-          email: user.email,
-        },
-        token,
-      });
-    } catch (error: Error | any) {
-      return response
-        .status(500)
-        .json(
-          new AppError(
-            "There was an error querying the data.",
-            error.errors ? error.errors.map((e: Error) => e.message) : error
-          )
-        );
+      const { email, password } = request.body;
+      const credentials = await authService.login(email, password);
+      return response.status(200).json(credentials);
+    } catch (error: AppError | any) {
+      return response.status(error.statusCode || 500).json(error);
     }
   }
 
@@ -103,20 +67,12 @@ export default class AuthController {
     request: Request,
     response: Response
   ): Promise<Response> {
-    const user = request.body;
-
     try {
+      const user = request.body;
       const createdUser = await usersService.save(user);
       return response.status(201).json(createdUser);
-    } catch (error: Error | any) {
-      return response
-        .status(500)
-        .json(
-          new AppError(
-            "There was an error saving the data.",
-            error?.errors.map((e: Error) => e.message) || error
-          )
-        );
+    } catch (error: AppError | any) {
+      return response.status(error.statusCode || 500).json(error);
     }
   }
 
@@ -143,30 +99,17 @@ export default class AuthController {
     request: Request,
     response: Response
   ): Promise<Response> {
-    const { email } = request.body;
-
     try {
+      const { email } = request.body;
       const user = await usersService.findByEmail(email);
-
-      if (!user) {
-        return response.status(404).json(new AppError("User not found"));
-      }
-
-      const userToken = await authService.createUserToken(user.id);
+      const userToken = await authService.createUserToken(user!.id);
       const link = `${process.env.API_ROOT}/reset-password?token=${userToken?.token}`;
 
-      await authService.sendMail(user, link);
+      await authService.sendMail(user!, link);
 
       return response.status(200).json();
-    } catch (error: Error | any) {
-      return response
-        .status(500)
-        .json(
-          new AppError(
-            "There was an error querying the data.",
-            error.errors ? error.errors.map((e: Error) => e.message) : error
-          )
-        );
+    } catch (error: AppError | any) {
+      return response.status(error.statusCode || 500).json(error);
     }
   }
 
@@ -195,41 +138,12 @@ export default class AuthController {
     request: Request,
     response: Response
   ): Promise<Response> {
-    const { password, token } = request.body;
-
     try {
-      const userToken = await authService.getUserToken(token);
-
-      if (!userToken) {
-        return response.status(404).json(new AppError("User Token not found"));
-      }
-
-      const user = await usersService.findById(userToken.userId);
-
-      if (!user) {
-        return response.status(404).json(new AppError("User not found"));
-      }
-
-      const tokenCreatedAt = userToken.createdAt as Date;
-      const compareDate = addHours(tokenCreatedAt, 2);
-
-      if (isAfter(Date.now(), compareDate)) {
-        return response.status(401).json(new AppError("Token expired"));
-      }
-
-      user.password = password;
-      usersService.update(user.id, user);
-
+      const { password, token } = request.body;
+      await authService.resetPassword(token, password);
       return response.status(200).json();
-    } catch (error: Error | any) {
-      return response
-        .status(500)
-        .json(
-          new AppError(
-            "There was an error querying the data.",
-            error.errors ? error.errors.map((e: Error) => e.message) : error
-          )
-        );
+    } catch (error: AppError | any) {
+      return error || response.status(error.statusCode || 500).json(error);
     }
   }
 }
