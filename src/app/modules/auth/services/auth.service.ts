@@ -7,9 +7,11 @@ import UserToken from "../../users/models/user-token.model";
 import User from "../../users/models/user.model";
 import UsersRepository from "../../users/repositories/users.repository";
 import AuthRepository from "../repositories/auth.repository";
+import LogService from "../../../shared/log/services/log.service";
 
 const authRepository = new AuthRepository();
 const usersRepository = new UsersRepository();
+const logService = new LogService();
 
 export default class AuthService {
   public async login(
@@ -43,8 +45,13 @@ export default class AuthService {
         },
         token,
       };
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      await logService.save({
+        message: error.message,
+        statusCode: error.statusCode,
+        error: error.stack ? JSON.stringify(error.stack) : "",
+      });
+
       throw error || new AppError("There was an error on login.", 500);
     }
   }
@@ -52,8 +59,12 @@ export default class AuthService {
   public async createUserToken(userId: string): Promise<UserToken | null> {
     try {
       return await authRepository.createUserToken(userId);
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      await logService.save({
+        message: error.message,
+        statusCode: error.statusCode,
+        error: error.stack ? JSON.stringify(error.stack) : "",
+      });
       throw new AppError("There was an error saving the data.", 500);
     }
   }
@@ -109,8 +120,12 @@ export default class AuthService {
             throw reject(error);
           });
       });
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      await logService.save({
+        message: error.message,
+        statusCode: error.statusCode,
+        error: error.stack ? JSON.stringify(error.stack) : "",
+      });
       throw error || new AppError("There was an error sending the email.", 500);
     }
   }
@@ -123,7 +138,7 @@ export default class AuthService {
         throw new AppError("User Token not found");
       }
 
-      const user = await usersRepository.findById(userToken.userId);
+      const user = await usersRepository.findById(userToken.userId as string);
 
       if (!user) {
         throw new AppError("User not found");
@@ -138,8 +153,12 @@ export default class AuthService {
 
       user.password = password;
       usersRepository.update(user.id, user);
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      await logService.save({
+        message: error.message,
+        statusCode: error.statusCode,
+        error: error.stack ? JSON.stringify(error.stack) : "",
+      });
       throw error || new AppError("There was an error querying the data.", 500);
     }
   }

@@ -7,18 +7,19 @@ import {
 } from "sequelize";
 import database from "../../../database/db";
 
-export default class UserToken extends Model<
-  InferAttributes<UserToken>,
-  InferCreationAttributes<UserToken>
+export default class Log extends Model<
+  InferAttributes<Log>,
+  InferCreationAttributes<Log>
 > {
   declare id?: CreationOptional<string>;
-  declare token?: string;
-  declare userId?: string;
+  declare message: string;
+  declare statusCode: number;
+  declare error?: string;
   declare createdAt?: CreationOptional<Date>;
   declare updatedAt?: CreationOptional<Date>;
 }
 
-UserToken.init(
+Log.init(
   {
     id: {
       type: DataTypes.UUID,
@@ -26,18 +27,23 @@ UserToken.init(
       allowNull: false,
       primaryKey: true,
     },
-    token: {
-      type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV4,
+    message: {
+      type: DataTypes.STRING,
       allowNull: false,
     },
-    userId: {
-      type: DataTypes.UUID,
+    statusCode: {
+      type: DataTypes.NUMBER,
       allowNull: false,
     },
+    error: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    createdAt: DataTypes.DATE,
+    updatedAt: DataTypes.DATE,
   },
   {
     sequelize: database,
-    modelName: "UserToken",
+    modelName: "Log",
   }
 );

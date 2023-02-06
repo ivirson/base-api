@@ -2,36 +2,60 @@ import User from "../models/user.model";
 
 export default class UsersRepository {
   public async findAll(): Promise<User[]> {
-    return await User.findAll();
+    try {
+      return await User.findAll();
+    } catch (error) {
+      throw error;
+    }
   }
 
   public async findById(id: string): Promise<User | null> {
-    return await User.findByPk(id);
+    try {
+      return await User.findByPk(id);
+    } catch (error) {
+      throw error;
+    }
   }
 
   public async findByEmail(email: string): Promise<User | null> {
-    return await User.scope("withPassword").findOne({
-      where: {
-        email,
-      },
-    });
+    try {
+      return await User.scope("withPassword").findOne({
+        where: {
+          email,
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
   }
 
   public async save(user: any): Promise<User> {
-    return await User.create(user);
+    try {
+      return await User.create(user);
+    } catch (error) {
+      throw error;
+    }
   }
 
   public async update(id: string, user: any): Promise<User | null> {
-    await User.update(user, {
-      where: { id },
-    });
+    try {
+      await User.update(user, {
+        where: { id },
+      });
 
-    return await User.findByPk(id);
+      return await User.findByPk(id);
+    } catch (error) {
+      throw error;
+    }
   }
 
   public async delete(id: string): Promise<void> {
-    await User.destroy({
-      where: { id },
-    });
+    try {
+      await User.destroy({
+        where: { id },
+      });
+    } catch (error) {
+      throw error;
+    }
   }
 }

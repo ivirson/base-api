@@ -2,18 +2,24 @@ import bcrypt from "bcrypt";
 import fs from "fs";
 import path from "path";
 import uploadConfig from "../../../middlewares/upload";
+import LogService from "../../../shared/log/services/log.service";
 import { AppError } from "../../../shared/models/error.model";
 import User from "../models/user.model";
 import UsersRepository from "../repositories/users.repository";
 
 const usersRepository = new UsersRepository();
+const logService = new LogService();
 
 export default class UsersService {
   public async findAll(): Promise<User[]> {
     try {
       return await usersRepository.findAll();
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      await logService.save({
+        message: error.message,
+        statusCode: error.statusCode,
+        error: error.stack ? JSON.stringify(error.stack) : "",
+      });
       throw new AppError("There was an error querying the data.", 500);
     }
   }
@@ -25,8 +31,14 @@ export default class UsersService {
         throw new AppError("User not found.");
       }
       return user;
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
+
+      await logService.save({
+        message: error.message,
+        statusCode: error.statusCode,
+        error: error.stack ? JSON.stringify(error.stack) : "",
+      });
       throw error || new AppError("There was an error querying the data.", 500);
     }
   }
@@ -38,8 +50,12 @@ export default class UsersService {
         throw new AppError("User not found.");
       }
       return user;
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      await logService.save({
+        message: error.message,
+        statusCode: error.statusCode,
+        error: error.stack ? JSON.stringify(error.stack) : "",
+      });
       throw error || new AppError("There was an error querying the data.", 500);
     }
   }
@@ -53,8 +69,12 @@ export default class UsersService {
         ...user,
         password: encryptedPassword,
       });
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      await logService.save({
+        message: error.message,
+        statusCode: error.statusCode,
+        error: error.stack ? JSON.stringify(error.stack) : "",
+      });
       throw new AppError("There was an error saving the data.", 500);
     }
   }
@@ -72,8 +92,12 @@ export default class UsersService {
         user.password = encryptedPassword;
       }
       return await usersRepository.update(id, user);
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      await logService.save({
+        message: error.message,
+        statusCode: error.statusCode,
+        error: error.stack ? JSON.stringify(error.stack) : "",
+      });
       throw error || new AppError("There was an error updating the data.", 500);
     }
   }
@@ -101,8 +125,12 @@ export default class UsersService {
         ...user?.dataValues,
         avatar,
       });
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      await logService.save({
+        message: error.message,
+        statusCode: error.statusCode,
+        error: error.stack ? JSON.stringify(error.stack) : "",
+      });
       throw error || new AppError("There was an error updating the data.", 500);
     }
   }
@@ -114,8 +142,12 @@ export default class UsersService {
         throw new AppError("User not found.");
       }
       await usersRepository.delete(id);
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      await logService.save({
+        message: error.message,
+        statusCode: error.statusCode,
+        error: error.stack ? JSON.stringify(error.stack) : "",
+      });
       throw error || new AppError("There was an error deleting the data.", 500);
     }
   }
